@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6 text-center">
+        <div class="neu-card p-5">
+            <i class="bi bi-check-circle-fill text-success display-1"></i>
+            <h2 class="mt-3">Success!</h2>
+            <p class="lead">You have successfully issued <strong>{{ title }}</strong>.</p>
+            <p class="text-muted">Please collect it from the counter.</p>
+            <a href="/" class="neu-btn mt-3">Go Home</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AI Smart Library</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --bg-color: #e0e5ec;
+            --text-color: #4a4a4a;
+            --shadow-light: #ffffff;
+            --shadow-dark: #a3b1c6;
+            --primary: #6d5dfc;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', sans-serif;
+        }
+        /* Neumorphic Card */
+        .neu-card {
+            border-radius: 20px;
+            background: var(--bg-color);
+            box-shadow: 9px 9px 16px var(--shadow-dark), -9px -9px 16px var(--shadow-light);
+            border: none;
+            padding: 20px;
+        }
+        /* Neumorphic Button */
+        .neu-btn {
+            border-radius: 50px;
+            background: var(--bg-color);
+            box-shadow: 6px 6px 10px var(--shadow-dark), -6px -6px 10px var(--shadow-light);
+            color: var(--primary);
+            font-weight: bold;
+            border: none;
+            padding: 10px 20px;
+            transition: all 0.2s ease;
+        }
+        .neu-btn:hover {
+            box-shadow: inset 6px 6px 10px var(--shadow-dark), inset -6px -6px 10px var(--shadow-light);
+            color: var(--primary);
+        }
+        /* Neumorphic Input */
+        .neu-input {
+            border-radius: 50px;
+            background: var(--bg-color);
+            box-shadow: inset 6px 6px 10px var(--shadow-dark), inset -6px -6px 10px var(--shadow-light);
+            border: none;
+            padding: 15px 25px;
+            width: 100%;
+            outline: none;
+        }
+        .navbar {
+            background: var(--bg-color);
+            box-shadow: 0px 10px 20px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light mb-5">
+    <div class="container">
+        <a class="navbar-brand fw-bold text-primary" href="/"><i class="bi bi-book-half"></i> SmartLib AI</a>
+        <div class="d-flex gap-3">
+            <a href="/rooms" class="neu-btn btn-sm text-decoration-none">
+                <i class="bi bi-people-fill"></i> Book Room
+            </a>
+            
+            <a href="/admin" class="neu-btn btn-sm text-decoration-none">
+                <i class="bi bi-shield-lock"></i> Admin
+            </a>
+        </div>
+    </div>
+</nav>
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

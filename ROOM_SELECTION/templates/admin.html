@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-primary fw-bold">Admin Dashboard</h2>
+    <a href="/logout" class="neu-btn text-danger btn-sm">Log Out</a>
+</div>
+
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div class="alert alert-info neu-card text-center mb-4">{{ messages[0] }}</div>
+    {% endif %}
+{% endwith %}
+
+<div class="neu-card mb-4">
+    <h5 class="mb-3 text-muted">Add New Inventory</h5>
+    <form method="POST" action="/admin" class="row g-2">
+        <div class="col-md-4"><input name="title" class="neu-input" placeholder="Title" required></div>
+        <div class="col-md-3"><input name="author" class="neu-input" placeholder="Author" required></div>
+        <div class="col-md-3">
+            <select name="category" class="neu-input">
+                <option value="Education">Education</option>
+                <option value="Fiction">Fiction</option>
+                <option value="Biography">Biography</option>
+            </select>
+        </div>
+        <div class="col-md-2"><button type="submit" class="neu-btn w-100">Add</button></div>
+    </form>
+</div>
+
+<div class="neu-card mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="text-muted">Room Schedule</h5>
+        
+        <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#resetModal">
+            <i class="bi bi-trash-fill"></i> Start New Day (Reset All)
+        </button>
+    </div>
+    
+    {% if bookings %}
+    <div class="table-responsive">
+        <table class="table table-sm align-middle">
+            <thead class="table-light"><tr><th>Room</th><th>Time</th><th>Group</th><th>Action</th></tr></thead>
+            <tbody>
+                {% for b in bookings %}
+                <tr>
+                    <td>Room {{ b.room_id }}</td>
+                    <td><span class="badge bg-primary">{{ b.time_slot }}:00</span></td>
+                    <td>{{ b.student_name }}</td>
+                    <td><a href="/admin/delete_booking/{{ b.room_id }}/{{ b.time_slot }}" class="text-danger"><i class="bi bi-x-circle-fill"></i></a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-muted small text-center">No active bookings.</p>
+    {% endif %}
+</div>
+
+<div class="neu-card">
+    <h5 class="mb-3 text-muted">Book Catalog</h5>
+    <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+        <table class="table table-hover align-middle">
+            <thead><tr><th>ID</th><th>Details</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+                {% for book in books %}
+                <tr>
+                    <td><small>#{{ book.bid }}</small></td>
+                    <td><strong>{{ book.title }}</strong><br><small>{{ book.author }}</small></td>
+                    <td>
+                        <span id="badge-{{ book.bid }}" class="badge {% if book.status=='available' %}bg-success{% elif book.status=='issued' %}bg-warning text-dark{% else %}bg-danger{% endif %}">
+                            {{ book.status }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <button onclick="setStatus('{{ book.bid }}','available')" class="btn btn-outline-success" title="Mark Available">
+                                <i class="bi bi-check-lg"></i> Available
+                            </button>
+                            <button onclick="setStatus('{{ book.bid }}','issued')" class="btn btn-outline-warning" title="Mark Issued">
+                                <i class="bi bi-person-badge"></i> Issued
+                            </button>
+                            <button onclick="setStatus('{{ book.bid }}','out_of_stock')" class="btn btn-outline-secondary" title="Mark Out of Stock">
+                                <i class="bi bi-slash-circle"></i> Out of Stock
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="resetModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger">⚠️ Danger Zone</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <b>ALL</b> room bookings?</p>
+                <form method="POST" action="/admin">
+                    <input type="hidden" name="clear_bookings" value="true">
+                    <div class="mb-3">
+                        <label class="form-label">Confirm Admin Password:</label>
+                        <input type="password" name="confirm_password" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-danger w-100">CONFIRM DELETION</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="liveToast" class="toast text-white bg-success border-0">
+        <div class="d-flex">
+            <div class="toast-body">Update Successful!</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>
+
+<script>
+function setStatus(bid, status) {
+    fetch('/api/update_status', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ bid: bid, status: status })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.success) {
+            const badge = document.getElementById('badge-' + bid);
+            badge.innerText = status;
+            badge.className = 'badge ' + (status === 'available' ? 'bg-success' : status === 'issued' ? 'bg-warning text-dark' : 'bg-danger');
+            
+            const toastEl = document.getElementById('liveToast');
+            const toast = new bootstrap.Toast(toastEl);
+            toast.show();
+        }
+    });
+}
+</script>
+{% endblock %}

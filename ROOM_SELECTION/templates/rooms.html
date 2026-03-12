@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="row mb-4">
+    <div class="col-md-12 text-center">
+        <h2 class="fw-bold text-primary">Discussion Room Booking</h2>
+        <p class="text-muted">Max 6 students per room • Open 9 AM - 6 PM</p>
+        <span class="badge bg-info text-dark">Current Time: {{ current_hour }}:00</span>
+    </div>
+</div>
+
+{% if message %}
+<div class="alert {{ 'alert-success' if 'Success' in message else 'alert-danger' }} text-center neu-card mb-4">
+    {{ message }}
+</div>
+{% endif %}
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="neu-card">
+            <h4 class="mb-3">Book a Slot</h4>
+            <form method="POST" action="/rooms">
+                <div class="mb-3">
+                    <label class="form-label">Leader Reg No</label>
+                    <input type="text" name="student_name" class="neu-input" placeholder="e.g. 24bca7976" required 
+                           pattern="^\d{2}[a-zA-Z]{3}\d{4}$" title="Format: 24bca7976">
+                    <small class="text-muted" style="font-size: 0.7rem;">Format: Batch(24)+Branch(bca)+Serial(7976)</small>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Group Members Reg Nos</label>
+                    <textarea name="members" class="neu-input" rows="2" placeholder="e.g. 24bca1001, 24cse2020, 24aim3030"></textarea>
+                    <small class="text-muted" style="font-size: 0.7rem;">Separate IDs with commas. (Max 5 others)</small>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Select Room</label>
+                    <select name="room_id" class="neu-input">
+                        <option value="1">Room A (Projector)</option>
+                        <option value="2">Room B (Whiteboard)</option>
+                        <option value="3">Room C (Silent)</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Select Time</label>
+                    <select name="time_slot" class="neu-input">
+                        {% for h in range(9, 18) %}
+                            {% if h <= current_hour %}
+                                <option value="{{ h }}" disabled class="text-muted">{{ h }}:00 - {{ h+1 }}:00 (Expired)</option>
+                            {% else %}
+                                <option value="{{ h }}">{{ h }}:00 - {{ h+1 }}:00</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <button type="submit" class="neu-btn w-100">Confirm Booking</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="neu-card">
+            <h4 class="mb-3">Live Availability</h4>
+            <div class="table-responsive">
+                <table class="table table-borderless text-center align-middle">
+                    <thead><tr><th>Time</th><th>Room A</th><th>Room B</th><th>Room C</th></tr></thead>
+                    <tbody>
+                        {% for hour in range(9, 18) %}
+                        <tr style="{{ 'opacity: 0.5; background: #f0f0f0;' if hour <= current_hour else '' }}">
+                            <td class="fw-bold text-muted">{{ hour }}:00</td>
+                            {% for r in [1, 2, 3] %}
+                            <td>
+                                {% set key = r ~ '_' ~ hour %}
+                                {% if taken[key] and hour > current_hour %}
+                                    <span class="badge bg-danger p-2 w-100" title="{{ taken[key] }}">Busy</span>
+                                    <div style="font-size:0.6rem" class="text-muted mt-1">{{ taken[key] }}</div>
+                                {% elif hour <= current_hour %}
+                                    <span class="text-muted small">-</span>
+                                {% else %}
+                                    <span class="badge bg-success p-2 w-100">Free</span>
+                                {% endif %}
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
