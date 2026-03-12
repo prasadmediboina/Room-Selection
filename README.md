@@ -75,5 +75,5 @@ Security: Credentials are hardcoded for ease of demonstration. In production, th
 │   └── ...
 └── requirements.txt        # Dependencies
 
-👨‍💻 Developed by Guru Venkata Krishna Egiti
+👨‍💻 Developed by prasad mediboina
 Engineering Student | Full Stack Developer
